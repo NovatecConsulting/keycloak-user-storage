@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.keycloakuserstore.dao.UserDAO;
 import com.example.keycloakuserstore.models.User;
+import com.example.keycloakuserstore.representations.UserRepresentation;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
@@ -39,8 +41,7 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-
+		userDAO.close();
 	}
 
 	@Override
@@ -122,9 +123,10 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	@Override
 	public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult,
 			int maxResults) {
-		// TODO Auto-generated method stub
-		System.err.println("dsfs");
-		return new ArrayList<>();
+		return userDAO.findAll(firstResult, maxResults)
+				.stream()
+				.map(user -> new UserRepresentation(session, realm, model, user))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 		return new UserModel() {
 			@Override
 			public String getId() {
-				return finalUser.getId();
+				return finalUser.getId()+"";
 			}
 
 			@Override
