@@ -23,9 +23,10 @@ dependencies {
 	implementation('org.keycloak:keycloak-server-spi:8.0.1')
 	implementation('org.keycloak:keycloak-services:8.0.1')
 	bundleLib group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
-	implementation('org.jboss.logging:jboss-logging:3.4.1.Final')
+	bundleLib group: 'org.slf4j', name: 'slf4j-log4j12', version: '2.0.0-alpha1'
+	bundleLib group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.0-alpha1'
 	implementation('org.projectlombok:lombok:1.18.10')
-	bundleLib group: 'org.hibernate.orm', name: 'hibernate-core', version: '6.0.0.Alpha4'
+	bundleLib group: 'org.hibernate', name: 'hibernate-core', version: '5.4.10.Final'
 	testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
 	testImplementation('org.mockito:mockito-core:3.2.4')
 	testImplementation('org.assertj:assertj-core:3.14.0')
