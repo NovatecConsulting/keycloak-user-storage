@@ -1,6 +1,7 @@
 package com.example.keycloakuserstore;
 
 import com.example.keycloakuserstore.dao.UserDAO;
+import com.example.keycloakuserstore.models.User;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
@@ -44,7 +45,7 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
         properties.put("hibernate.connection.url", "jdbc:mysql://localhost/jee_test");
         properties.put("hibernate.connection.username", "root");
         properties.put("hibernate.connection.password", "root");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MariaDBDialect");
         properties.put("hibernate.show-sql", "true");
         properties.put("hibernate.archive.autodetection", "class, hbm");
         properties.put("hibernate.hbm2ddl.auto", "create");
@@ -61,43 +62,44 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
         return new PersistenceUnitInfo() {
             @Override
             public String getPersistenceUnitName() {
+                System.err.println("public String getPersistenceUnitName()");
                 return name;
             }
 
             @Override
             public String getPersistenceProviderClassName() {
+                System.err.println("public String getPersistenceProviderClassName()");
                 return "org.hibernate.jpa.HibernatePersistenceProvider";
             }
 
             @Override
             public PersistenceUnitTransactionType getTransactionType() {
+                System.err.println("public PersistenceUnitTransactionType getTransactionType()");
                 return PersistenceUnitTransactionType.RESOURCE_LOCAL;
             }
 
             @Override
             public DataSource getJtaDataSource() {
+                System.err.println("public DataSource getJtaDataSource()");
                 return null;
             }
 
             @Override
             public DataSource getNonJtaDataSource() {
+                System.err.println("public DataSource getNonJtaDataSource()");
                 return null;
             }
 
             @Override
             public List<String> getMappingFileNames() {
+                System.err.println("public List<String> getMappingFileNames()");
                 return Collections.emptyList();
             }
 
             @Override
             public List<URL> getJarFileUrls() {
+                System.err.println("public List<URL> getJarFileUrls()");
                 try {
-                    Enumeration<URL> t = this.getClass()
-                            .getClassLoader()
-                            .getResources("");
-                    while(t.hasMoreElements()) {
-                        System.err.println(t.nextElement());
-                    }
                     return Collections.list(this.getClass()
                             .getClassLoader()
                             .getResources(""));
@@ -108,53 +110,62 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
 
             @Override
             public URL getPersistenceUnitRootUrl() {
+                System.err.println("public URL getPersistenceUnitRootUrl()");
                 return null;
             }
 
             @Override
             public List<String> getManagedClassNames() {
+                System.err.println("public List<String> getManagedClassNames()");
                 List<String> managedClasses = new LinkedList<>();
-                managedClasses.add("com.example.keycloakuserstorage.models.User");
+                managedClasses.add(User.class.getName());
                 return managedClasses;
             }
 
             @Override
             public boolean excludeUnlistedClasses() {
+                System.err.println("public boolean excludeUnlistedClasses()");
                 return false;
             }
 
             @Override
             public SharedCacheMode getSharedCacheMode() {
-                return null;
+                System.err.println("public SharedCacheMode getSharedCacheMode()");
+                return SharedCacheMode.UNSPECIFIED;
             }
 
             @Override
             public ValidationMode getValidationMode() {
-                return null;
+                System.err.println("public ValidationMode getValidationMode()");
+                return ValidationMode.AUTO;
             }
 
             @Override
             public Properties getProperties() {
+                System.err.println("public Properties getProperties()");
                 return new Properties();
             }
 
             @Override
             public String getPersistenceXMLSchemaVersion() {
-                return null;
+                System.err.println("public String getPersistenceXMLSchemaVersion()");
+                return "2.1";
             }
 
             @Override
             public ClassLoader getClassLoader() {
-                return null;
+                System.err.println("public ClassLoader getClassLoader()");
+                return Thread.currentThread().getContextClassLoader();
             }
 
             @Override
             public void addTransformer(ClassTransformer transformer) {
-
+                System.err.println("public void addTransformer(ClassTransformer transformer)");
             }
 
             @Override
             public ClassLoader getNewTempClassLoader() {
+                System.err.println("public ClassLoader getNewTempClassLoader()");
                 return null;
             }
         };
