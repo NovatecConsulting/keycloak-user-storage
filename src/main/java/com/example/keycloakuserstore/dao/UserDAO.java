@@ -22,18 +22,23 @@ public class UserDAO {
     }
 
     public List<User> findAll() {
-        TypedQuery<User> query = entityManager.createNamedQuery("searchForUser", User.class);
-        query.setParameter("search", "%");
-        return query.getResultList();
+        return findAll(null, null);
     }
 
     public List<User> findAll(int start, int max) {
+        return findAll((Integer)start, (Integer)max);
+    }
+
+    private List<User> findAll(Integer start, Integer max) {
         TypedQuery<User> query = entityManager.createNamedQuery("searchForUser", User.class);
-        query.setFirstResult(start);
-        query.setMaxResults(max);
+        if(start != null) {
+            query.setFirstResult(start);
+        }
+        if(max != null) {
+            query.setMaxResults(max);
+        }
         query.setParameter("search", "%");
         List<User> users =  query.getResultList();
-        System.err.println(users);
         return users;
     }
 
@@ -46,9 +51,30 @@ public class UserDAO {
 
     public List<User> searchForUserByUsernameOrEmail(String searchString) {
         logger.info("searchForUserByUsernameOrEmail(searchString: " + searchString + ")");
+        return searchForUserByUsernameOrEmail(searchString, null, null);
+    }
+
+    public List<User> searchForUserByUsernameOrEmail(String searchString, int start, int max) {
+        logger.info("searchForUserByUsernameOrEmail(searchString: " + searchString + ", start: "+start+", max: "+max+")");
+        return searchForUserByUsernameOrEmail(searchString, (Integer)start, (Integer)max);
+    }
+
+    private List<User> searchForUserByUsernameOrEmail(String searchString, Integer start, Integer max) {
+        logger.info("searchForUserByUsernameOrEmail(searchString: " + searchString + ", start: "+start+", max: "+max+")");
         TypedQuery<User> query = entityManager.createNamedQuery("searchForUser", User.class);
-        query.setParameter("search", searchString);
+        query.setParameter("search", "%" + searchString + "%");
+        if(start != null) {
+            query.setFirstResult(start);
+        }
+        if(max != null) {
+            query.setMaxResults(max);
+        }
         return query.getResultList();
+    }
+
+    public User getUserById(String id) {
+        logger.info("getUserById(id: " + id + ")");
+        return entityManager.find(User.class, UUID.fromString(id));
     }
 
     public User createUser(User user) {
@@ -59,8 +85,22 @@ public class UserDAO {
         return user;
     }
 
+    public void deleteUser(User user) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        entityManager.remove(user);
+        transaction.commit();
+    }
+
     public void close() {
         this.entityManager.close();
     }
 
+    public User updateUser(User userEntity) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        entityManager.merge(userEntity);
+        transaction.commit();
+        return userEntity;
+    }
 }
