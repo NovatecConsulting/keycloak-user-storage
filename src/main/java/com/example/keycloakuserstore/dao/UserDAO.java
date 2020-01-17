@@ -49,6 +49,13 @@ public class UserDAO {
         return query.getResultList().get(0);
     }
 
+    public User getUserByEmail(String email) {
+        logger.info("getUserByEmail(email: " + email + ")");
+        TypedQuery<User> query = entityManager.createNamedQuery("getUserByEmail", User.class);
+        query.setParameter("email", email);
+        return query.getResultList().get(0);
+    }
+
     public List<User> searchForUserByUsernameOrEmail(String searchString) {
         logger.info("searchForUserByUsernameOrEmail(searchString: " + searchString + ")");
         return searchForUserByUsernameOrEmail(searchString, null, null);
@@ -102,5 +109,9 @@ public class UserDAO {
         entityManager.merge(userEntity);
         transaction.commit();
         return userEntity;
+    }
+
+    public int size() {
+        return entityManager.createNamedQuery("getUserCount", Integer.class).getSingleResult();
     }
 }

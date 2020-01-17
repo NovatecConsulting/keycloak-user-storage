@@ -46,15 +46,19 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	@Override
 	public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
 		logger.info("isConfiguredFor("+realm+", "+user+", "+credentialType+")");
-		// TODO Auto-generated method stub
-		return false;
+		return supportsCredentialType(credentialType) && getPassword(user) != null;
 	}
 
 	@Override
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput credentialInput) {
 		logger.info("isValid("+realm+", "+user+", "+credentialInput+")");
-		// TODO Auto-generated method stub
-		return false;
+		if (!(credentialInput instanceof UserCredentialModel)) return false;
+		if (supportsCredentialType(credentialInput.getType())) {
+			String password = getPassword(user);
+			return password != null && password.equals(credentialInput.getChallengeResponse());
+		} else {
+			return false; // invalid cred type
+		}
 	}
 
 	@Override
@@ -76,8 +80,8 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	@Override
 	public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
 		logger.info("disableCredentialType("+realm+", "+user+", "+credentialType+")");
-		// TODO Auto-generated method stub
-
+		if(!supportsCredentialType(credentialType)) return;
+		getUserRepresentation(user).setPassword(null);
 	}
 
 	@Override
@@ -92,20 +96,17 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	}
 
 	public UserRepresentation getUserRepresentation(UserModel user) {
-		UserRepresentation adapter = null;
-		if (user instanceof CachedUserModel) {
-			adapter = (UserRepresentation)((CachedUserModel)user).getDelegateForUpdate();
-		} else {
-			adapter = (UserRepresentation)user;
-		}
-		return adapter;
+		return (UserRepresentation)user;
+	}
+
+	public UserRepresentation getUserRepresentation(User user, RealmModel realm) {
+		return new UserRepresentation(session, realm, model, user, userDAO);
 	}
 
 	@Override
 	public int getUsersCount(RealmModel realm) {
 		logger.info("getUsersCount("+realm+")");
-		// TODO Auto-generated method stub
-		return 0;
+		return userDAO.size();
 	}
 
 	@Override
@@ -147,7 +148,7 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	@Override
 	public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm) {
 		logger.info("searchForUser(params: "+params+", realm: "+realm+")");
-		// TODO Auto-generated method stub
+		// TODO Will probably never implement; Only used by REST API
 		return new ArrayList<>();
 	}
 
@@ -162,19 +163,19 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
 	@Override
 	public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group, int firstResult, int maxResults) {
-		// TODO Auto-generated method stub
+		// TODO Will probably never implement
 		return new ArrayList<>();
 	}
 
 	@Override
 	public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group) {
-		// TODO Auto-generated method stub
+		// TODO Will probably never implement
 		return new ArrayList<>();
 	}
 
 	@Override
 	public List<UserModel> searchForUserByUserAttribute(String attrName, String attrValue, RealmModel realm) {
-		// TODO Auto-generated method stub
+		// TODO Will probably never implement
 		return new ArrayList<>();
 	}
 
@@ -188,16 +189,14 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
 	@Override
 	public UserModel getUserByUsername(String username, RealmModel realm) {
-		// TODO Auto-generated method stub
 		logger.info("getUserByUsername(String username, RealmModel realm)");
-		return null;
+		return getUserRepresentation(userDAO.getUserByUsername(username), realm);
 	}
 
 	@Override
 	public UserModel getUserByEmail(String email, RealmModel realm) {
 		logger.info("getUserByEmail(String email, RealmModel realm)");
-		// TODO Auto-generated method stub
-		return null;
+		return getUserRepresentation(userDAO.getUserByEmail(email), realm);
 	}
 
 	@Override
@@ -220,5 +219,13 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 		}
 		userDAO.deleteUser(userEntity);
 		return true;
+	}
+
+	public String getPassword(UserModel user) {
+		String password = null;
+		if (user instanceof UserRepresentation) {
+			password = ((UserRepresentation)user).getPassword();
+		}
+		return password;
 	}
 }
