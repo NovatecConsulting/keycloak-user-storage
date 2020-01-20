@@ -1,3 +1,5 @@
+![](https://github.com/nt-ca-aqe/keycloak-user-storage/workflows/Java%20CI/badge.svg)
+
 # Keycloak User Storage SPI demo
 
 ## Getting Started
