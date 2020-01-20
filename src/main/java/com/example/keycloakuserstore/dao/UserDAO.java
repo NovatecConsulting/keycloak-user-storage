@@ -9,6 +9,7 @@ import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -42,18 +43,18 @@ public class UserDAO {
         return users;
     }
 
-    public User getUserByUsername(String username) {
+    public Optional<User> getUserByUsername(String username) {
         logger.info("getUserByUsername(username: " + username + ")");
         TypedQuery<User> query = entityManager.createNamedQuery("getUserByUsername", User.class);
         query.setParameter("username", username);
-        return query.getResultList().get(0);
+        return query.getResultList().stream().findFirst();
     }
 
-    public User getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(String email) {
         logger.info("getUserByEmail(email: " + email + ")");
         TypedQuery<User> query = entityManager.createNamedQuery("getUserByEmail", User.class);
         query.setParameter("email", email);
-        return query.getResultList().get(0);
+        return query.getResultList().stream().findFirst();
     }
 
     public List<User> searchForUserByUsernameOrEmail(String searchString) {

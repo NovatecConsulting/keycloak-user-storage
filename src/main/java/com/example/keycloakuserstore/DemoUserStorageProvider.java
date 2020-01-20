@@ -96,7 +96,13 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	}
 
 	public UserRepresentation getUserRepresentation(UserModel user) {
-		return (UserRepresentation)user;
+		UserRepresentation userRepresentation = null;
+		if (user instanceof CachedUserModel) {
+			userRepresentation = (UserRepresentation)((CachedUserModel)user).getDelegateForUpdate();
+		} else {
+			userRepresentation = (UserRepresentation)user;
+		}
+		return userRepresentation;
 	}
 
 	public UserRepresentation getUserRepresentation(User user, RealmModel realm) {
@@ -190,13 +196,15 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 	@Override
 	public UserModel getUserByUsername(String username, RealmModel realm) {
 		logger.info("getUserByUsername(String username, RealmModel realm)");
-		return getUserRepresentation(userDAO.getUserByUsername(username), realm);
+		Optional<User> optionalUser = userDAO.getUserByUsername(username);
+		return optionalUser.map(user -> getUserRepresentation(user, realm)).orElse(null);
 	}
 
 	@Override
 	public UserModel getUserByEmail(String email, RealmModel realm) {
 		logger.info("getUserByEmail(String email, RealmModel realm)");
-		return getUserRepresentation(userDAO.getUserByEmail(email), realm);
+		Optional<User> optionalUser = userDAO.getUserByEmail(email);
+		return optionalUser.map(user -> getUserRepresentation(user, realm)).orElse(null);
 	}
 
 	@Override
