@@ -21,7 +21,7 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .authenticator(new OAuthClientCredentialsAuthenticator("http://127.0.0.1:30000/auth/realms/Testrealm/protocol/openid-connect/token", "federation-client", "44f3b18e-1939-4391-a2f9-479621888a61"))
                 .build();
-        UserService userService = new UserServiceImpl(httpClient, "http://127.0.0.1:31000");
+        UserService userService = new UserServiceImpl(httpClient, "http://127.0.0.1:31000/user");
         return new DemoUserStorageProvider(session, model, userService);
     }
 

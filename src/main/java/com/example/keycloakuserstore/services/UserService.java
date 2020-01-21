@@ -16,5 +16,5 @@ public interface UserService {
     List<User> findUserByUsernameOrEmail(String username, String email) throws UserStorageException;
     List<User> findUserByUsername(String username) throws UserStorageException;
     List<User> findUserByEmail(String email) throws UserStorageException;
-
+    void deleteUser(String id) throws UserStorageException;
 }

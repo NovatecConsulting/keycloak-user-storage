@@ -1,21 +1,11 @@
 package com.example.keycloakuserstore;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.example.keycloakuserstore.errors.UserStorageException;
 import com.example.keycloakuserstore.model.User;
 import com.example.keycloakuserstore.representations.UserRepresentation;
 import com.example.keycloakuserstore.services.UserService;
 import lombok.extern.jbosslog.JBossLog;
-import okhttp3.OkHttpClient;
 import org.keycloak.component.ComponentModel;
-import org.keycloak.credential.CredentialInput;
-import org.keycloak.credential.CredentialInputUpdater;
-import org.keycloak.credential.CredentialInputValidator;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -24,9 +14,20 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
+import org.keycloak.storage.user.UserRegistrationProvider;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @JBossLog
-public class DemoUserStorageProvider implements UserStorageProvider, UserLookupProvider, UserQueryProvider {
+public class DemoUserStorageProvider implements
+		UserStorageProvider,
+		UserLookupProvider,
+		UserQueryProvider,
+		UserRegistrationProvider {
 
 	private final KeycloakSession session;
 	private final ComponentModel model;
@@ -164,4 +165,28 @@ public class DemoUserStorageProvider implements UserStorageProvider, UserLookupP
 		return null;
 	}
 
+	@Override
+	public UserModel addUser(RealmModel realm, String username) {
+		log.infov("public UserModel addUser(RealmModel realm, String username)");
+		try {
+			Optional<User> userOptional = userService.createUser(new User().setUsername(username));
+			if(!userOptional.isPresent()) {
+				return null;
+			}
+			return new UserRepresentation(session, realm, model, userOptional.get());
+		} catch (UserStorageException userStoragException) {
+			return null;
+		}
+	}
+
+	@Override
+	public boolean removeUser(RealmModel realm, UserModel user) {
+		log.infov("public boolean removeUser(RealmModel realm, UserModel user)");
+		try {
+			userService.deleteUser(user.getId());
+			return true;
+		} catch (UserStorageException e) {
+			return false;
+		}
+	}
 }
