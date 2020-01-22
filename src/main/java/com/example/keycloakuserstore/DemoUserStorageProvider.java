@@ -41,13 +41,11 @@ public class DemoUserStorageProvider implements
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
 		log.infov("public void close()");
 	}
 
 	@Override
 	public int getUsersCount(RealmModel realm) {
-		// TODO Auto-generated method stub
 		log.infov("public int getUsersCount(RealmModel realm)");
 		return getUsers(realm).size();
 	}
@@ -55,7 +53,6 @@ public class DemoUserStorageProvider implements
 	@Override
 	public List<UserModel> getUsers(RealmModel realm) {
 		log.infov("public List<UserModel> getUsers(RealmModel realm)");
-		// TODO Auto-generated method stub
 		try {
 			return userService.getAllUsers()
 					.stream()
@@ -137,11 +134,9 @@ public class DemoUserStorageProvider implements
 	@Override
 	public UserModel getUserById(String id, RealmModel realm) {
 		log.infov("public UserModel getUserById(String id, RealmModel realm)");
-		System.err.println(StorageId.externalId(id));
 		try {
 			String externalId = StorageId.externalId(id);
 			User user = userService.getUserById(UUID.fromString(externalId)).orElse(null);
-			System.err.println(user);
 			if(user == null) {
 				return null;
 			}

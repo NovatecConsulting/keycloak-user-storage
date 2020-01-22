@@ -65,9 +65,18 @@ public class UserRepresentation extends AbstractUserAdapterFederatedStorage {
         }
     }
 
-
     @Override
     public String getId() {
         return StorageId.keycloakId(storageProviderModel, user.getId().toString());
+    }
+
+    @Override
+    public String getFirstName() {
+        return user.getFirstName();
+    }
+
+    @Override
+    public String getLastName() {
+        return user.getLastName();
     }
 }
