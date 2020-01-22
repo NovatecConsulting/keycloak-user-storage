@@ -25,7 +25,14 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(OkHttpClient httpClient, String baseUrl) {
         this.httpClient = httpClient;
-        this.baseUrl = baseUrl;
+        this.baseUrl = prepareBaseUrl(baseUrl);
+    }
+
+    private String prepareBaseUrl(String baseUrl) {
+        if(!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
+        return baseUrl;
     }
 
     @Override

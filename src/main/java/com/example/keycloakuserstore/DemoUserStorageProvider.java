@@ -141,6 +141,7 @@ public class DemoUserStorageProvider implements
 		try {
 			String externalId = StorageId.externalId(id);
 			User user = userService.getUserById(UUID.fromString(externalId)).orElse(null);
+			System.err.println(user);
 			if(user == null) {
 				return null;
 			}
