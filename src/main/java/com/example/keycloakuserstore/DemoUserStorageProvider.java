@@ -16,10 +16,7 @@ import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JBossLog
@@ -66,15 +63,21 @@ public class DemoUserStorageProvider implements
 	@Override
 	public List<UserModel> getUsers(RealmModel realm, int firstResult, int maxResults) {
 		log.infov("public List<UserModel> getUsers(RealmModel realm, int firstResult, int maxResults)");
-		// TODO: Pagination
-		return getUsers(realm);
+		try {
+			return userService.getAllUsers(firstResult, maxResults)
+					.stream()
+					.map(user -> new UserRepresentation(session, realm, model, user))
+					.collect(Collectors.toList());
+		} catch (UserStorageException exception) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<UserModel> searchForUser(String search, RealmModel realm) {
 		log.infov("public List<UserModel> searchForUser(String search, RealmModel realm)");
 		try {
-			return userService.findUserByUsernameOrEmail(search, search)
+			return userService.findUsersByUsernameOrEmail(search, search)
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
@@ -86,8 +89,14 @@ public class DemoUserStorageProvider implements
 	@Override
 	public List<UserModel> searchForUser(String search, RealmModel realm, int firstResult, int maxResults) {
 		log.infov("public List<UserModel> searchForUser(String search, RealmModel realm, int firstResult, int maxResults)");
-		// TODO: Pagination
-		return searchForUser(search, realm);
+		try {
+			return userService.findUsersByUsernameOrEmail(search, search, firstResult, maxResults)
+					.stream()
+					.map(user -> new UserRepresentation(session, realm, model, user))
+					.collect(Collectors.toList());
+		} catch (UserStorageException exception) {
+			return null;
+		}
 	}
 
 	@Override
@@ -106,8 +115,15 @@ public class DemoUserStorageProvider implements
 	@Override
 	public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult,
 			int maxResults) {
-		log.infov("public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult, int maxResults)");
-		return searchForUser(params, realm);
+		log.infov("public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, firstResult: "+firstResult+", maxResults: "+maxResults+")");
+		try {
+			return userService.getAllUsers(firstResult, maxResults)
+					.stream()
+					.map(user -> new UserRepresentation(session, realm, model, user))
+					.collect(Collectors.toList());
+		} catch (UserStorageException exception) {
+			return null;
+		}
 	}
 
 	@Override
@@ -149,16 +165,23 @@ public class DemoUserStorageProvider implements
 	@Override
 	public UserModel getUserByUsername(String username, RealmModel realm) {
 		log.infov("public UserModel getUserByUsername(String username, RealmModel realm)");
-		// TODO Auto-generated method stub
-
-		return null;
+		try {
+			Optional<User> user = userService.findUserByUsername(username);
+			return new UserRepresentation(session, realm, model, user.get());
+		} catch (NoSuchElementException | UserStorageException exception) {
+			return null;
+		}
 	}
 
 	@Override
 	public UserModel getUserByEmail(String email, RealmModel realm) {
 		log.infov("public UserModel getUserByEmail(String email, RealmModel realm)");
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			Optional<User> user = userService.findUserByEmail(email);
+			return new UserRepresentation(session, realm, model, user.get());
+		} catch (NoSuchElementException | UserStorageException exception) {
+			return null;
+		}
 	}
 
 	@Override

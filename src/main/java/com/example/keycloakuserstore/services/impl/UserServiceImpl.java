@@ -54,6 +54,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getAllUsers(int min, int max) throws UserStorageException {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        if(min < 0 || max < 0) {
+            throw new IllegalArgumentException("min and max need to be positive or zero");
+        }
+
+        urlBuilder.addQueryParameter("min", min+"");
+        urlBuilder.addQueryParameter("max", max+"");
+
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .build();
+
+        return executeUserListRequest(request);
+    }
+
+    @Override
     public Optional<User> updateUser(User updatedUser) throws UserStorageException {
         return null;
     }
@@ -68,7 +85,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findUserByUsernameOrEmail(String username, String email) throws UserStorageException {
+    public List<User> findUsersByUsernameOrEmail(String username, String email) throws UserStorageException {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
         if(username != null && !username.isEmpty()) {
             urlBuilder.addQueryParameter("username", username);
@@ -84,13 +101,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findUserByUsername(String username) throws UserStorageException {
-        return null;
+    public List<User> findUsersByUsernameOrEmail(String username, String email, int min, int max) throws UserStorageException {
+        if(min < 0 || max < 0) {
+            throw new IllegalArgumentException("min and max need to be positive or zero");
+        }
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+
+        urlBuilder.addQueryParameter("min", min+"");
+        urlBuilder.addQueryParameter("max", max+"");
+
+        if(username != null && !username.isEmpty()) {
+            urlBuilder.addQueryParameter("username", username);
+        }
+        if(email != null && !email.isEmpty()) {
+            urlBuilder.addQueryParameter("email", email);
+        }
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .build();
+
+        return executeUserListRequest(request);
     }
 
     @Override
-    public List<User> findUserByEmail(String email) throws UserStorageException {
-        return null;
+    public Optional<User> findUserByUsername(String username) throws UserStorageException {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        if(username != null && !username.isEmpty()) {
+            urlBuilder.addQueryParameter("username", username);
+            urlBuilder.addQueryParameter("exactSearch", "true");
+        }
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .build();
+
+        return executeSingleUserForListRequest(request);
+    }
+
+    @Override
+    public Optional<User> findUserByEmail(String email) throws UserStorageException {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        if(email != null && !email.isEmpty()) {
+            urlBuilder.addQueryParameter("email", email);
+            urlBuilder.addQueryParameter("exactSearch", "true");
+        }
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .build();
+
+        return executeSingleUserForListRequest(request);
     }
 
     @Override
@@ -136,6 +194,23 @@ public class UserServiceImpl implements UserService {
             User user = gson.fromJson(responseBody, User.class);
 
             return Optional.ofNullable(user);
+        } catch (IOException e) {
+            throw new UserStorageUnavailableException();
+        }
+    }
+
+    private Optional<User> executeSingleUserForListRequest(Request request) throws UserStorageException {
+        try(Response response = httpClient.newCall(request).execute()) {
+            String responseBody = response.body().string();
+            if(response.body() == null || responseBody.isEmpty()) {
+                throw new UserStorageException();
+            }
+            Type userListType = new TypeToken<List<User>>(){}.getType();
+            List<User> users = gson.fromJson(responseBody, userListType);
+            if(users.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(users.get(0));
         } catch (IOException e) {
             throw new UserStorageUnavailableException();
         }
