@@ -1,13 +1,10 @@
-package com.example.keycloakuserstore.utils;
+package com.example.keycloakuserstore.oauth;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import okhttp3.*;
-import org.ietf.jgss.GSSContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.ejb.Stateful;
 import java.io.IOException;
 import java.util.Map;
 
@@ -51,8 +48,8 @@ public class OAuthClientCredentialsAuthenticator implements Authenticator {
             Gson gson = new Gson();
             Map<String, Object> data = gson.fromJson(authResponse.body().string(), Map.class);
             accessToken = (String)data.get("access_token");
-            validUntil = System.currentTimeMillis() + ((Double)data.get("expires_in")).longValue();
             if(accessToken != null) {
+                validUntil = System.currentTimeMillis() + ((Double)data.get("expires_in")).longValue();
                 return response.request().newBuilder()
                         .header("Authorization", "Bearer " + accessToken)
                         .build();

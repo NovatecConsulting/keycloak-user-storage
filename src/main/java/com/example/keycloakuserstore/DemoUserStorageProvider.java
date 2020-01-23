@@ -1,6 +1,7 @@
 package com.example.keycloakuserstore;
 
 import com.example.keycloakuserstore.errors.UserStorageException;
+import com.example.keycloakuserstore.errors.UserStorageUnauthorizedException;
 import com.example.keycloakuserstore.model.User;
 import com.example.keycloakuserstore.representations.UserRepresentation;
 import com.example.keycloakuserstore.services.UserService;
@@ -55,9 +56,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -68,9 +72,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -81,9 +88,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -94,9 +104,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -107,9 +120,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -121,9 +137,12 @@ public class DemoUserStorageProvider implements
 					.stream()
 					.map(user -> new UserRepresentation(session, realm, model, user))
 					.collect(Collectors.toList());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -157,9 +176,12 @@ public class DemoUserStorageProvider implements
 				return null;
 			}
 			return new UserRepresentation(session, realm, model, user);
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return null;
 	}
 
 	@Override
@@ -168,9 +190,12 @@ public class DemoUserStorageProvider implements
 		try {
 			Optional<User> user = userService.findUserByUsername(username);
 			return new UserRepresentation(session, realm, model, user.get());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (NoSuchElementException | UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return null;
 	}
 
 	@Override
@@ -179,9 +204,12 @@ public class DemoUserStorageProvider implements
 		try {
 			Optional<User> user = userService.findUserByEmail(email);
 			return new UserRepresentation(session, realm, model, user.get());
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
 		} catch (NoSuchElementException | UserStorageException exception) {
-			return null;
+			log.error(exception);
 		}
+		return null;
 	}
 
 	@Override
@@ -189,13 +217,13 @@ public class DemoUserStorageProvider implements
 		log.infov("public UserModel addUser(RealmModel realm, String username)");
 		try {
 			Optional<User> userOptional = userService.createUser(new User().setUsername(username));
-			if(!userOptional.isPresent()) {
-				return null;
-			}
-			return new UserRepresentation(session, realm, model, userOptional.get());
-		} catch (UserStorageException userStoragException) {
-			return null;
+			return userOptional.map(user -> new UserRepresentation(session, realm, model, user)).orElse(null);
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
+		} catch (UserStorageException exception) {
+			log.error(exception);
 		}
+		return null;
 	}
 
 	@Override
@@ -204,8 +232,11 @@ public class DemoUserStorageProvider implements
 		try {
 			userService.deleteUser(user.getId());
 			return true;
-		} catch (UserStorageException e) {
-			return false;
+		} catch (UserStorageUnauthorizedException exception) {
+			log.error("Authorization to REST API failed.");
+		} catch (UserStorageException exception) {
+			log.error(exception);
 		}
+		return false;
 	}
 }

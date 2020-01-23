@@ -2,6 +2,7 @@ package com.example.keycloakuserstore.services.impl;
 
 import com.example.keycloakuserstore.errors.UserNotFoundException;
 import com.example.keycloakuserstore.errors.UserStorageException;
+import com.example.keycloakuserstore.errors.UserStorageUnauthorizedException;
 import com.example.keycloakuserstore.errors.UserStorageUnavailableException;
 import com.example.keycloakuserstore.model.User;
 import com.example.keycloakuserstore.services.UserService;
@@ -174,10 +175,14 @@ public class UserServiceImpl implements UserService {
         try(Response response = httpClient.newCall(request).execute()) {
             String responseBody = response.body().string();
             if(response.body() == null || responseBody.isEmpty()) {
+                if(response.code() == 401 || response.code() == 403) {
+                    throw new UserStorageUnauthorizedException();
+                }
                 throw new UserStorageException();
             }
             Type userListType = new TypeToken<List<User>>(){}.getType();
             List<User> users = gson.fromJson(responseBody, userListType);
+
 
             return users;
         } catch (IOException e) {
