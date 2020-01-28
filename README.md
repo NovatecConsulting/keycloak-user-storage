@@ -47,6 +47,9 @@ The final part is to configure the deployed user storage SPI to interact with th
 3. The URL to the token endpoint of your keycloak realm used to authorize the access to the RESTful API
 4. Client credentials to use the OAuth 2.0 client credentials grant. (Authentication of the deployed user storage SPI to your RESTful service)
 
+## Problems you might come across
+### While clicking through pages of user search results it keeps querying the API on every page also for the pages before
+This is related to a bad implementation in Keycloak. There's been an open issue for this problem since 2018 and is **not fixed by now**. Further details [here](https://github.com/nt-ca-aqe/keycloak-user-storage/issues/2).
 
 ## Reference Documentation
 
