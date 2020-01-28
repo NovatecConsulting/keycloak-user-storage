@@ -33,6 +33,31 @@ To utilize the on-the-fly runtime configuration of providers in Keycloak, we nee
 5. Username and password to the database server (and the specified database)
 6. Here you can specify the port of your MySQL database server. If it's the default port, leave it at `3306`.
 
+## Problems you might come across
+#### Not finding any information on how to contruct JPA connections (with Hibernate) at runtime
+We had the same problem and came to the conclusion that it wasn't meant to be used this way. By reverse engineering different frameworks that utilize JPA we found a workaround, which has one immense drawback. It uses the Hibernate built-in connection pool, which is not recommended for production use. Plus a lot of other drawbacks, like the need for manual transaction handling.
+
+To start connections at runtime you need to create an object of `javax.persistence.spi.PersistenceUnitInfo`. Then you can generate a `EntityManagerFactory` to create connections from:
+```java
+MultivaluedHashMap<String, String> config = model.getConfig();
+properties.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+properties.put("hibernate.connection.url",
+        String.format("jdbc:mysql://%s:%s/%s",
+                config.getFirst(DB_HOST_KEY),
+                config.getFirst(DB_PORT_KEY),
+                config.getFirst(DB_DATABASE_KEY)));
+properties.put("hibernate.connection.username", config.getFirst(DB_USERNAME_KEY));
+properties.put("hibernate.connection.password", config.getFirst(DB_PASSWORD_KEY));
+properties.put("hibernate.show-sql", "true");
+properties.put("hibernate.archive.autodetection", "class, hbm");
+properties.put("hibernate.hbm2ddl.auto", "update");
+properties.put("hibernate.connection.autocommit", "true");
+entityManagerFactory = new HibernatePersistenceProvider().createContainerEntityManagerFactory(getPersistenceUnitInfo("h2userstorage"), properties);
+```
+
+#### Compared to examples online, if I modify an entity it's not persisted back into the database
+This problem occurs due to manually constructing the JPA connection. You need to manually start a transaction and persist entities once you modified them.
+
 ## Reference Documentation
 
 For further reference, please consider the following sections:
