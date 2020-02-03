@@ -32,7 +32,7 @@ The final part is to configure the deployed user storage SPI to interact with th
 
 #### Steps to start the RESTful service
 1. Switch to the `DemoMySQLKeycloakAPI`
-2. Start a MySQL container with docker: `docker run --name mysql-jee -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql`
+2. Start a MySQL container with docker: `docker run --name mysql-jee -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=spring-user-mgmt -d mysql`
     ```diff
    - Attention: This setup is not production-ready as your MySQL server can easily be accessible by anyone!
    ```

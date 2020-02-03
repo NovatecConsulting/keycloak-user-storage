@@ -6,7 +6,7 @@ plugins {
 
 group = 'de.dorianweidler'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.12'
+sourceCompatibility = '11'
 
 configurations {
 	compileOnly {
