@@ -1,13 +1,24 @@
 package com.example.keycloakuserstore;
 
-import com.example.keycloakuserstore.dao.UserDAO;
-import com.example.keycloakuserstore.models.User;
-import com.example.keycloakuserstore.representations.UserRepresentation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
 import org.keycloak.credential.CredentialInputValidator;
-import org.keycloak.models.*;
+import org.keycloak.models.GroupModel;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserCredentialModel;
+import org.keycloak.models.UserModel;
 import org.keycloak.models.cache.CachedUserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
@@ -16,9 +27,9 @@ import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import com.example.keycloakuserstore.dao.UserDAO;
+import com.example.keycloakuserstore.models.User;
+import com.example.keycloakuserstore.representations.UserRepresentation;
 
 public class DemoUserStorageProvider implements UserStorageProvider,
 		UserLookupProvider,

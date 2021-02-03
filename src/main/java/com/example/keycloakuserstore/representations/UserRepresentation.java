@@ -1,7 +1,9 @@
 package com.example.keycloakuserstore.representations;
 
-import com.example.keycloakuserstore.dao.UserDAO;
-import com.example.keycloakuserstore.models.User;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
@@ -9,9 +11,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.example.keycloakuserstore.dao.UserDAO;
+import com.example.keycloakuserstore.models.User;
 
 public class UserRepresentation extends AbstractUserAdapterFederatedStorage {
     private User userEntity;
@@ -109,7 +110,7 @@ public class UserRepresentation extends AbstractUserAdapterFederatedStorage {
 
     @Override
     public String getId() {
-        return StorageId.keycloakId(storageProviderModel, userEntity.getId().toString());
+        return StorageId.keycloakId(storageProviderModel, String.valueOf(userEntity.getId()));
     }
 
     public String getPassword() {

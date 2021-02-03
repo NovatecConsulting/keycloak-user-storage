@@ -1,20 +1,14 @@
 package com.example.keycloakuserstore;
 
-import com.example.keycloakuserstore.dao.UserDAO;
-import com.example.keycloakuserstore.models.User;
-import lombok.extern.jbosslog.JBossLog;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.keycloak.Config;
-import org.keycloak.common.util.MultivaluedHashMap;
-import org.keycloak.component.ComponentModel;
-import org.keycloak.component.ComponentValidationException;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.RealmModel;
-import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.provider.ProviderConfigurationBuilder;
-import org.keycloak.storage.UserStorageProviderFactory;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.SharedCacheMode;
@@ -23,10 +17,22 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.util.*;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.keycloak.common.util.MultivaluedHashMap;
+import org.keycloak.component.ComponentModel;
+import org.keycloak.component.ComponentValidationException;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
+import org.keycloak.storage.UserStorageProviderFactory;
+
+import com.example.keycloakuserstore.dao.UserDAO;
+import com.example.keycloakuserstore.models.User;
+
+import lombok.extern.jbosslog.JBossLog;
 
 /**
  * DemoUserStorageProviderFactory
@@ -46,6 +52,7 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
     public static final String DB_USERNAME_KEY = "db:username";
     public static final String DB_PASSWORD_KEY = "db:password";
     public static final String DB_PORT_KEY = "db:port";
+    public static final String DB_PROPERTIES_KEY = "db:properties";
 
     static {
         configMetadata = ProviderConfigurationBuilder.create()
@@ -91,6 +98,13 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
                 .label("Database Port")
                 .defaultValue("3306")
                 .add()
+
+                // Connection Properties
+                .property().name(DB_PROPERTIES_KEY)
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .label("Connection Properties")
+                .defaultValue("characterEncoding=UTF-8")
+                .add()
                 .build();
     }
 
@@ -108,16 +122,18 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
             MultivaluedHashMap<String, String> config = model.getConfig();
             properties.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
             properties.put("hibernate.connection.url",
-                    String.format("jdbc:mysql://%s:%s/%s",
+                    String.format("jdbc:mysql://%s:%s/%s?%s",
                             config.getFirst(DB_HOST_KEY),
                             config.getFirst(DB_PORT_KEY),
-                            config.getFirst(DB_DATABASE_KEY)));
+                            config.getFirst(DB_DATABASE_KEY),
+                            config.getFirst(DB_PROPERTIES_KEY)));
             properties.put("hibernate.connection.username", config.getFirst(DB_USERNAME_KEY));
             properties.put("hibernate.connection.password", config.getFirst(DB_PASSWORD_KEY));
             properties.put("hibernate.show-sql", "true");
             properties.put("hibernate.archive.autodetection", "class, hbm");
             properties.put("hibernate.hbm2ddl.auto", "update");
             properties.put("hibernate.connection.autocommit", "true");
+            properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
 
             entityManagerFactory = new HibernatePersistenceProvider().createContainerEntityManagerFactory(getPersistenceUnitInfo("h2userstorage"), properties);
             entityManagerFactories.put(dbConnectionName, entityManagerFactory);

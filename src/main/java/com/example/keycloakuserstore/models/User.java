@@ -1,10 +1,17 @@
 package com.example.keycloakuserstore.models;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.persistence.*;
-import java.util.UUID;
 
 @NamedQueries({
         @NamedQuery(name="getUserByUsername", query="select u from User u where u.username = :username"),
@@ -20,9 +27,9 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class User {
     @Id
-    @GeneratedValue
-    @Column(length = 128/8)
-    private UUID id;
+    @GeneratedValue(generator="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    private String id;
     @Column(unique = true)
     private String username;
     @Column(unique = true)
